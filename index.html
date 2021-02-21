@@ -5,12 +5,18 @@
         <meta charset="UTF-8">
     </head>
     <body>
+        <button>Rock</button>
+        <button>Paper</button>
+        <button>Scissors</button>
+        <div id="score"></div>
+        <div id="container"></div>
+
         <script>
             let choice = ['Rock', 'Paper', 'Scissors'];
-
+            
             function computerPlay()
             {
-                return choice[Math.floor(Math.random(), 3)];
+                return choice[Math.floor(Math.random()* 3)];
             }
 
             function capitalize(string)
@@ -21,67 +27,84 @@
                 return result;
             }
 
-            function playRound(playerSelection, computerSelection)
+            function playRound(e)
             {
+                let playerSelection, computerSelection;
+                computerSelection = computerPlay();
+                playerSelection = e.target.textContent;
                 switch(true)
                 {
                     case playerSelection === computerSelection:
-                        return 'draw';
+                        {
+                            resultRound.textContent = `Draw!`;
+                            break;
+                        }
                     case playerSelection === 'Rock' && computerSelection === 'Paper':
                     case playerSelection === 'Paper' && computerSelection === 'Scissors':
                     case playerSelection === 'Scissors' && computerSelection === 'Rock':
-                        return 'lose';
+                        {
+                            resultRound.textContent = `You lose! ${computerSelection} beats ${playerSelection}`;
+                            computerScore++;
+                            break;
+                        }
                     case playerSelection === 'Rock' && computerSelection === 'Scissors':
                     case playerSelection === 'Paper' && computerSelection === 'Rock':
                     case playerSelection === 'Scissors' && computerSelection === 'Paper':
-                        return 'win';
-                    default:
-                        return 'invalid';
-                }
-            }
-
-            // const playerSelection = 'rock';
-            // const computerSelection = computerPlay();
-            // console.log(playRound(playerSelection, computerSelection));
-
-            function game()
-            {
-                let playerScore = 0, computerScore = 0;
-                let playerSelection, computerSelection;
-                for (let round = 1; round <= 5; round++)
-                {
-                    computerSelection = computerPlay();
-                    playerSelection = prompt(`Round ${round}! Your choice: Rock - Paper - Scissors?`,'');
-                    if (playerSelection !== null && playerSelection !== '')
-                        playerSelection = capitalize(playerSelection);
-                    switch(playRound(playerSelection, computerSelection))
-                    {
-                        case 'draw':
-                            console.log('Draw!');
-                            break;
-                        case 'lose':
-                            console.log(`You lose! ${computerSelection} beats ${playerSelection}`);
-                            computerScore++;
-                            break;
-                        case 'win':
-                            console.log(`You win! ${playerSelection} beats ${computerSelection}`);
+                        {
+                            resultRound.textContent = `You win! ${playerSelection} beats ${computerSelection}`;
                             playerScore++;
                             break;
-                        case 'invalid':
-                            console.log('Invalid choice! Try again.');
-                            round--;
-                            break;
-                    }
+                        }
                 }
-
-                if (playerScore > computerScore)
-                    console.log('You won the game! Congratulations!');
-                else if (playerScore < computerScore)
-                    console.log('You lost the game! Better luck next time!');
-                else
-                    console.log("It's a tie!");
+                container.appendChild(resultRound);
+                score.textContent = `You: ${playerScore} | Computer: ${computerScore}`;
             }
-            game();
+
+            function playGame(e) {
+                playRound(e);
+                round++;
+
+                if(round > 5)
+                {
+                if (playerScore > computerScore)
+                    resultFinal.textContent = 'You won the game! Congratulations!';
+                else if (playerScore < computerScore)
+                    resultFinal.textContent = 'You lost the game! Better luck next time!';
+                else
+                    resultFinal.textContent = "It's a tie!";
+
+                container.appendChild(resultFinal);
+                buttons.forEach((button) => button.removeEventListener('click', playGame));    
+                restartBtn.textContent = "Restart?";
+                restartBtn.classList.add('restartBtn');
+                container.insertBefore(restartBtn, container.childNodes[0]);
+                }
+            }
+
+            let round = 1;
+            let playerScore = 0, computerScore = 0;
+        
+            const container = document.querySelector('#container');
+            const resultRound = document.createElement('div');
+            const resultFinal = document.createElement('h2');
+            const restartBtn = document.createElement('button');
+            const score = document.querySelector('#score');
+
+            score.textContent = `You: ${playerScore} | Computer: ${computerScore}`;
+            
+            const buttons = document.querySelectorAll("button");
+            buttons.forEach((button) => {button.addEventListener('click', playGame)});
+
+            restartBtn.addEventListener('click', restart);
+                
+            function restart() {
+               container.innerHTML = '';
+               buttons.forEach((button) => {button.addEventListener('click', playGame)})
+               round = 1;
+               playerScore = computerScore = 0;
+               score.textContent = `You: ${playerScore} | Computer: ${computerScore}`;
+            }
+                
         </script>
     </body>
 </html>
